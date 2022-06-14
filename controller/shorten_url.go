@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -13,15 +12,16 @@ import (
 )
 
 type request struct {
-	Url       string `json:"url"`
-	CustomUrl string `json:"customId"`
+	Url       string `json:"url" bson:"url"`
+	CustomUrl string `json:"customId" bson:"customUrl"`
 	//Expiry    time.Duration `json:"expiry"`
 }
 
 type response struct {
-	Url         string    `json:"url"`
-	ShortUrl    string    `json:"shortUrl"`
-	CreatedTime time.Time `json:"createdTime"`
+	Url         string    `json:"url" bson:"url"`
+	ShortUrl    string    `json:"shortUrl" bson:"shortUrl"`
+	UrlId       string    `json:"urlId" bson:"urlId"`
+	CreatedTime time.Time `json:"createdTime" bson:"createdTime"`
 	//Expiry          time.Duration `json:"expiry"`
 	//XRateRemaining  int           `json:"rate_limit"`
 	//XRateLimitReset time.Duration `json:"rate_limit_reset"`
@@ -51,7 +51,6 @@ func ShortenUrl(c *fiber.Ctx) error {
 	// enforce https
 	// all url will be converted to https before storing in database
 	body.Url = helpers.EnforceHttps(body.Url)
-	fmt.Println(body.Url)
 
 	//check if user has given any customUrl or not
 	var id string
@@ -64,7 +63,7 @@ func ShortenUrl(c *fiber.Ctx) error {
 	//Get MongoDB collection
 	collection := database.ConnectDb().Client.Database("url-shortner").Collection("url")
 
-	res := response{Url: body.Url, ShortUrl: "", CreatedTime: time.Now()}
+	res := response{Url: body.Url, ShortUrl: "", UrlId: id, CreatedTime: time.Now()}
 
 	res.ShortUrl = os.Getenv("DOMAIN") + "/" + id
 
