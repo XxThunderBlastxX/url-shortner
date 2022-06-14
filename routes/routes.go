@@ -6,5 +6,5 @@ import (
 )
 
 func Routes(c *fiber.App) {
-	c.Get("/", controller.ShortenUrl)
+	c.Post("/", controller.ShortenUrl)
 }

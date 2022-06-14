@@ -3,11 +3,19 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/joho/godotenv"
 	"log"
+	"os"
 	"url-shortner/routes"
 )
 
 func main() {
+	//Load env variables
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+
 	//Initialised the app
 	app := fiber.New()
 
@@ -18,6 +26,6 @@ func main() {
 	routes.Routes(app)
 
 	//Application listening to port
-	port := ":3200"
+	port := os.Getenv("PORT")
 	log.Fatal(app.Listen(port))
 }
