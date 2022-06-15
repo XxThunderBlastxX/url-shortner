@@ -13,7 +13,7 @@ import (
 
 type request struct {
 	Url       string `json:"url" bson:"url"`
-	CustomUrl string `json:"customId" bson:"customUrl"`
+	CustomUrl string `json:"customUrl" bson:"customUrl"`
 	//Expiry    time.Duration `json:"expiry"`
 }
 
@@ -42,22 +42,27 @@ func ShortenUrl(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid URL !!"})
 	}
 
-	//Check the URL already exist or not
-	//if false = duplicate url exist else true = does not exit .... all ok to go :)
-	//if !helpers.CheckUrlInDatabase(body.Url) {
-	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "sharam bech khaye ho ka ??"})
-	//}
-
 	// enforce https
 	// all url will be converted to https before storing in database
 	body.Url = helpers.EnforceHttps(body.Url)
+
+	//Check the URL already exist or not
+	//if true = duplicate url exist else false= does not exit ... all Ok to go :)
+	UrlVal, condVal := helpers.CheckUrlInDatabase(body.Url)
+	if condVal {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Url already exist !!", "url": body.Url, "short-url": UrlVal})
+	}
 
 	//check if user has given any customUrl or not
 	var id string
 	if body.CustomUrl == "" {
 		id = uuid.New().String()[:6]
 	} else {
-		id = body.CustomUrl
+		if !helpers.CheckGivenIdInDatabase(body.CustomUrl) {
+			id = body.CustomUrl
+		} else {
+			return c.Status(fiber.StatusFound).JSON(fiber.Map{"message": "short url already exist with same custom-url"})
+		}
 	}
 
 	//Get MongoDB collection
