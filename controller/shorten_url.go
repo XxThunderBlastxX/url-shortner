@@ -2,13 +2,14 @@ package controller
 
 import (
 	"context"
-	"github.com/asaskevich/govalidator"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"os"
 	"time"
 	"url-shortner/database"
 	"url-shortner/helpers"
+
+	"github.com/asaskevich/govalidator"
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type request struct {
